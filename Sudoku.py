@@ -4,19 +4,8 @@ class Solver :
     def __init__(self,sudoku_lists, sudoku_no):
         self.sudoku = sudoku_lists[sudoku_no]
         self.sudoku_no = sudoku_no
+        self.cnf = []
         pass
-    def isRowCorrect(self,row):
-        pass
-
-    def isColoumnCorrect(self,coloumn):
-        pass
-
-
-
-    def isSquareCorrectt(self,square):
-        pass
-
-
 
     def get_row(self, pos):
         # return row elements form position
