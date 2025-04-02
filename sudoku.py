@@ -1,54 +1,34 @@
 import pycosat
 
-class Solver :
-    def __init__(self,sudoku_lists, sudoku_no):
-        self.sudoku = sudoku_lists[sudoku_no]
+class Solver:
+    def __init__(self, sudoku_lists, sudoku_no):
+        """Initialize Sudoku from a list of puzzles."""
+        self.sudoku = sudoku_lists[sudoku_no].strip()
         self.sudoku_no = sudoku_no
         self.cnf = []
-        pass
-
     def var(self, row, col, num):
         """Return a unique variable for (row, col, num)"""
         return (row * 81) + (col * 9) + num
 
-
     def get_row(self, pos):
-        # return row elements form position
-        x=pos[0]
-        y=pos[1]
-        row=[]
-        for i in range(9):
-            if self.sudoku[x*9+i]!='.':
-                row.append(self.sudoku[x*9+i])
-        return row
+        """Return all numbers in the row of the given position."""
+        row, _ = pos
+        return [int(self.sudoku[row * 9 + i]) for i in range(9) if self.sudoku[row * 9 + i] != '.']
 
     def get_coloumn(self, pos):
-        #Return all coloumn elements from position of element
-        x=pos[0]
-        y=pos[1]
-        col=[]
-        for i in range(9):
-            if self.sudoku[i*9+y] != '.':
-                col.append(int(self.sudoku[i*9+y]))
-        return col
-        pass
+        """Return all numbers in the column of the given position."""
+        _, col = pos
+        return [int(self.sudoku[i * 9 + col]) for i in range(9) if self.sudoku[i * 9 + col] != '.']
 
-
-    def get_square(self,pos):
-        # Returns all numbers in the 3x3 box containing (row, col)
-        row=pos[0]
-        col=pos[1]
+    def get_square(self, pos):
+        """Return all numbers in the 3x3 box of the given position."""
+        row, col = pos
         start_row, start_col = (row // 3) * 3, (col // 3) * 3
-        box_numbers = []
-
-        for i in range(3):
-            for j in range(3):
-                index = (start_row + i) * 9 + (start_col + j)
-                if self.sudoku[index] != '.' :
-                    box_numbers.append(int(self.sudoku[index]))
-
-        return box_numbers
-
+        return [
+            int(self.sudoku[(start_row + i) * 9 + (start_col + j)])
+            for i in range(3) for j in range(3)
+            if self.sudoku[(start_row + i) * 9 + (start_col + j)] != '.'
+        ]
 
     def generate_cnf(self):
         """Generate CNF constraints for Sudoku rules using helper methods."""
@@ -115,46 +95,38 @@ class Solver :
 
     def decode_solution(self, solution):
         """Convert SAT solution back into a 9x9 Sudoku grid."""
-        grid = ['.' for _ in range(81)]
+        grid = [['.' for _ in range(9)] for _ in range(9)]
         for val in solution:
             if val > 0:  
                 val -= 1  
                 num = val % 9 + 1
                 col = (val // 9) % 9
                 row = (val // 81)
-                grid[row*9 + col] = str(num)
-        #converting grid into string
-        return_string = "".join(grid)
-        return return_string
+                grid[row][col] = str(num)
+        return grid
 
-        
-if __name__== '__main__':
+    def print_sudoku(self, grid):
+        """Print the Sudoku grid."""
+        for r in range(9):
+            if r % 3 == 0 and r != 0:
+                print("-" * 21)
+            row_str = " ".join(grid[r][c] if grid[r][c] != '.' else '.' for c in range(9))
+            print(row_str[:6] + "| " + row_str[6:12] + "| " + row_str[12:])
+
+if __name__ == '__main__':
+    # Read Sudoku puzzles from a file
     file_name = "p.txt"
-    # sudoku_no = 0  # Select the first puzzle from the file
-    total_lines = 0
+    sudoku_no = 0  # Select the first puzzle from the file
+    # file_name = "test.py" 
+    # sudoku_no = 0
     with open(file_name, "r") as file:
         sudoku_list = file.readlines()
-        total_lines = len(sudoku_list)
-    
-    #solving each sudoku
-    #first clearing previous output files 
-    with open("Solved_sudoku.txt", 'w') as file:
-        file.write("")
-    output_file  = open("Solved_sudoku.txt", 'a')
 
-    #appeding each sovled sudoku line by line
-    for i in range(total_lines):
-        solver = Solver(sudoku_list, i) #i denots sudoku number
-        solved_sudoku = solver.solve()
+    solver = Solver(sudoku_list, sudoku_no)
+    solved_grid = solver.solve()
 
-        if solved_sudoku:
-            # print("\nSolved Sudoku no :",i+1)
-            # print(solved_sudoku)
-
-            '''Storing result instead of printing'''
-            output_file.writelines(solved_sudoku + '\n')
-        else:
-
-            # print("\nNo solution exists!")
-            output_file.writelines("No soulution found" + '\n')
-
+    if solved_grid:
+        print("\nSolved Sudoku:")
+        solver.print_sudoku(solved_grid)
+    else:
+        print("\nNo solution exists!")
