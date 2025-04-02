@@ -129,15 +129,15 @@ class Solver :
 if __name__== '__main__':
     # name=input("File name: ")
     # sudoku_no = int(input(f"Sudoku no: "))
-    # sudoku_no = 0
+    sudoku_no = 0
     file = open("p.txt", "r")  #change file name with input name
-    # sudoku_list=file.readlines()
-    # sudoku_solver = Solver(sudoku_list,sudoku_no)
+    sudoku_list=file.readlines()
+    sudoku_solver = Solver(sudoku_list,sudoku_no)
 
-    # # print(sudoku_list[sudoku_no])
-    # row = sudoku_solver.get_nth_row((2,4))
-    # print(row)
-    # print(sudoku_solver.get_nth_coloumn((2,4)))
-    # print(sudoku_solver.get_square((2,4)))
+    # print(sudoku_list[sudoku_no])
+    row = sudoku_solver.get_row((2,4))
+    print(row)
+    print(sudoku_solver.get_coloumn((2,4)))
+    print(sudoku_solver.get_square((2,4)))
 
     file.close
