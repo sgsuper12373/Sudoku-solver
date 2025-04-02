@@ -7,6 +7,11 @@ class Solver :
         self.cnf = []
         pass
 
+    def var(self, row, col, num):
+        """Return a unique variable for (row, col, num)"""
+        return (row * 81) + (col * 9) + num
+
+
     def get_row(self, pos):
         # return row elements form position
         x=pos[0]
