@@ -14,8 +14,7 @@ class Solver :
 
     def get_row(self, pos):
         # return row elements form position
-        x=pos[0]
-        y=pos[1]
+        x,y = pos
         row=[]
         for i in range(9):
             if self.sudoku[x*9+i]!='.':
@@ -24,8 +23,7 @@ class Solver :
 
     def get_coloumn(self, pos):
         #Return all coloumn elements from position of element
-        x=pos[0]
-        y=pos[1]
+        x, y = pos
         col=[]
         for i in range(9):
             if self.sudoku[i*9+y] != '.':
@@ -36,10 +34,12 @@ class Solver :
 
     def get_square(self,pos):
         # Returns all numbers in the 3x3 box containing (row, col)
-        row=pos[0]
-        col=pos[1]
-        start_row, start_col = (row // 3) * 3, (col // 3) * 3
+        row, col = pos
+        start_row, start_col = (row // 3) * 3, (col // 3) * 3  # this will give top left index of box where pos is contained
         box_numbers = []
+
+        #extracting elements present in box whose top left co-ordinates are (start_row, start_col)
+
 
         for i in range(3):
             for j in range(3):
@@ -56,19 +56,19 @@ class Solver :
         # Rule 1: Each cell contains at least one number
         for r in range(9):
             for c in range(9):
-                self.cnf.append([self.var(r, c, n) for n in range(1, 10)])
+                self.cnf.append([self.var(r, c, n) for n in range(1, 10)]) #genrates 9 cnf and appends it to cnf list
 
         # Each cell contains at most one number
         for r in range(9):
             for c in range(9):
                 for n1 in range(1, 10):
                     for n2 in range(n1 + 1, 10):
-                        self.cnf.append([-self.var(r, c, n1), -self.var(r, c, n2)])
+                        self.cnf.append([-self.var(r, c, n1), -self.var(r, c, n2)]) #numbers from n1 t0 n2 can't be reapeated hence adding [-(var(r,c,n1) ), -var(r,c,n2)]
 
         # Use get_row() to enforce unique numbers per row
         for r in range(9):
             for n in range(1, 10):
-                if n not in self.get_row((r, 0)):  # If `n` is not already present
+                if n not in self.get_row((r, 0)):  # If `n` is already present skip that iteration.
                     self.cnf.append([self.var(r, c, n) for c in range(9)])
                     for c1 in range(9):
                         for c2 in range(c1 + 1, 9):
@@ -116,13 +116,13 @@ class Solver :
     def decode_solution(self, solution):
         """Convert SAT solution back into a 9x9 Sudoku grid."""
         grid = ['.' for _ in range(81)]
-        for val in solution:
-            if val > 0:  
-                val -= 1  
-                num = val % 9 + 1
-                col = (val // 9) % 9
-                row = (val // 81)
-                grid[row*9 + col] = str(num)
+        for num in solution:
+            if num > 0:  
+                num -= 1  
+                val = num % 9 + 1
+                col = (num // 9) % 9
+                row = (num // 81)
+                grid[row*9 + col] = str(val)
         #converting grid into string
         return_string = "".join(grid)
         return return_string
